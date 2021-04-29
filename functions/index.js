@@ -14,6 +14,8 @@ const runtimeOpts = {
   memory: '1GB'
 }
 
+
+// Firebase function
 exports.checkNewAppointments = functions
     .runWith(runtimeOpts)
     .region('europe-west1')
@@ -28,58 +30,86 @@ exports.checkNewAppointments = functions
 					checkDepartmentPromises.push(checkDepartment(department));
 				}
 
-				return Promise.all(checkDepartmentPromises)
-					.then(results => {
-						var availableCenters = 0;
-						
-						for (let result of results) {
-							availableCenters += result
-						}
-
-		  				console.info(availableCenters + " centers available in France");
-					});
+				return Promise.all(checkDepartmentPromises);
 		  	});
 });
 
+
+// Check availabilities for department
 function checkDepartment(department) {
 	const promises = [
-		getDepartmentAvailableCenters(department), 
+		getDepartmentCenters(department), 
 		getLastDepartmentState(department.code_departement)
 	];
 
 	return Promise.all(promises)
 		.then(results => {
 			const lastUpdated = results[0].lastUpdated;
-			const availableCenters = results[0].availableCenters;
+			const centers = results[0].centers;
+			const availableCenters = results[0].availableCentersCount;
 			const lastAvailableCenters = results[1] || 0;
 
 			var log = "[" + department.code_departement + " - " + department.nom_departement + "] " 
 				+ lastAvailableCenters + " -> " + availableCenters + " available centers : "
 
+			var departmentPromises =  [];
+
 			if (lastAvailableCenters > 0 || availableCenters == 0) {
 				console.info(log + "notification not necessary");
 
-				return saveDepartmentState(department.code_departement, availableCenters, lastUpdated, false)
-					.then(results => {
-						return availableCenters;
-					});
+				departmentPromises.push(saveDepartmentState(department.code_departement, availableCenters, lastUpdated, false));
 			} else {
 				console.info(log + "send notification");
 
-				return notification.sendDepartmentNotification(
+				departmentPromises.push(notification.sendDepartmentNotification(
 					department.code_departement, 
 					department.nom_departement, 
 					availableCenters)
 					.then(results => {
 						return saveDepartmentState(department.code_departement, availableCenters, lastUpdated, true);
-					})
-					.then(results => {
-						return availableCenters;
-					});
+					}));
 			}
+
+
+			for (let center of centers) {
+				departmentPromises.push(checkCenter(center));
+			}
+
+			return Promise.all(departmentPromises)
 		});
 }
 
+// Check availabilities for center
+function checkCenter(center) {
+	return getLastCenterState(center)
+		.then(result => {
+			const lastAppointmentCount = result || 0;
+			const appointmentCount = center.appointment_count;
+
+			var log = "[" + center.departement + " - " + center.gid + "] " 
+				+ lastAppointmentCount + " -> " + appointmentCount + " available appointments : "
+
+			if (lastAppointmentCount > 0 || appointmentCount == 0) {
+				console.info(log + "notification not necessary");
+
+				return saveCenterState(center);
+			} else {
+				console.info(log + "send notification");
+
+				return notification.sendCenterNotification(center)
+					.then(results => {
+						return saveCenterState(center);
+					});
+			}
+		});
+	
+}
+
+//
+// Network functions
+//
+
+// Request departements
 function getDepartments() {
 	return network.httpGet(departmentsUrl)
 		.then(departments => {
@@ -89,16 +119,24 @@ function getDepartments() {
 		});
 }
 
-function getDepartmentAvailableCenters(department) {
+// Request departement availabilities
+function getDepartmentCenters(department) {
 	return network.httpGet(baseUrl + department.code_departement + ".json")
 		.then(result => {
 			return {
-				"lastUpdated": result.last_updated,
-				"availableCenters": result.centres_disponibles.length
+				lastUpdated: result.last_updated,
+				centers: result.centres_disponibles.concat(result.centres_indisponibles),
+				availableCentersCount: result.centres_disponibles.length
 			};
 		});
 }
 
+
+//
+// Database functions
+//
+
+// Get departement last availabilities from database
 function getLastDepartmentState(departmentCode) {
 	return admin
 		.database()
@@ -109,12 +147,35 @@ function getLastDepartmentState(departmentCode) {
 		});
 }
 
+// Save departement availabilities to database
 function saveDepartmentState(departmentCode, availableCenters, lastUpdated, notificationSent) {
 	return admin
 		.database()
 		.ref("/departments/" + departmentCode)
+		.update({
+			availableCenters: availableCenters,
+			lastUpdated: lastUpdated
+		});
+}
+
+// Get center last availabilities from database
+function getLastCenterState(center) {
+	return admin
+		.database()
+		.ref("/departments/" + center.departement + "/centers/" + center.gid + "/appointmentCount")
+		.once('value')
+		.then(snapshot => {
+  			return snapshot.val();
+		});
+}
+
+// Save center availabilities to database
+function saveCenterState(center) {
+	return admin
+		.database()
+		.ref("/departments/" + center.departement + "/centers/" + center.gid)
 		.set({
-			"availableCenters": availableCenters,
-			"lastUpdated": lastUpdated
+			appointmentCount: center.appointment_count,
+			lastScanWithAvailabilities: center.last_scan_with_availabilities
 		});
 }
