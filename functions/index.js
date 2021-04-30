@@ -47,7 +47,7 @@ function checkDepartment(department) {
 			const lastUpdated = results[0].lastUpdated;
 			const centers = results[0].centers;
 			const availableCenters = results[0].availableCentersCount;
-			const lastAvailableCenters = results[1] || 0;
+			const lastAvailableCenters = results[1] || 1; // use 1 as default value to not notify new department
 
 			var log = "[" + department.code_departement + " - " + department.nom_departement + "] " 
 				+ lastAvailableCenters + " -> " + availableCenters + " available centers : "
@@ -83,7 +83,7 @@ function checkDepartment(department) {
 function checkCenter(center) {
 	return getLastCenterState(center)
 		.then(result => {
-			const lastAppointmentCount = result || 0;
+			const lastAppointmentCount = result || 1; // use 1 as default value to not notify new centers
 			const appointmentCount = center.appointment_count;
 
 			var log = "[" + center.departement + " - " + center.gid + "] " 
