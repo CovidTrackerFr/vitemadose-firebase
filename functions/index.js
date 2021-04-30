@@ -47,14 +47,14 @@ function checkDepartment(department) {
 			const lastUpdated = results[0].lastUpdated;
 			const centers = results[0].centers;
 			const availableCenters = results[0].availableCentersCount;
-			const lastAvailableCenters = results[1] || 1; // use 1 as default value to not notify new department
+			const lastAvailableCenters = results[1];
 
 			var log = "[" + department.code_departement + " - " + department.nom_departement + "] " 
 				+ lastAvailableCenters + " -> " + availableCenters + " available centers : "
 
 			var departmentPromises =  [];
 
-			if (lastAvailableCenters > 0 || availableCenters == 0) {
+			if (lastAvailableCenters == null || lastAvailableCenters > 0 || availableCenters == 0) {
 				console.info(log + "notification not necessary");
 
 				departmentPromises.push(saveDepartmentState(department.code_departement, availableCenters, lastUpdated, false));
@@ -83,13 +83,13 @@ function checkDepartment(department) {
 function checkCenter(center) {
 	return getLastCenterState(center)
 		.then(result => {
-			const lastAppointmentCount = result || 1; // use 1 as default value to not notify new centers
+			const lastAppointmentCount = result;
 			const appointmentCount = center.appointment_count;
 
 			var log = "[" + center.departement + " - " + center.gid + "] " 
 				+ lastAppointmentCount + " -> " + appointmentCount + " available appointments : "
 
-			if (lastAppointmentCount > 0 || appointmentCount == 0) {
+			if (appointmentCount == null || lastAppointmentCount > 0 || appointmentCount == 0) {
 				console.info(log + "notification not necessary");
 
 				return saveCenterState(center);
