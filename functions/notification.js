@@ -12,7 +12,9 @@ exports.sendCenterNotification = function sendCenterNotification(center) {
 	}
 	var data = {
       	department: center.departement,
-      	center: center.gid
+      	center: center.gid,
+		title: title,
+      	body: body
     }
 
 	return sendNotification(title, body, data, topic);
@@ -28,7 +30,9 @@ exports.sendDepartmentNotification = function sendDepartmentNotification(departm
 		body = "Nouveau créneau disponible";
 	}
 	var data = {
-      	department: departmentCode
+      	department: departmentCode,
+		title: title,
+      	body: body
     }
 
 	return sendNotification(title, body, data, topic);
@@ -36,10 +40,6 @@ exports.sendDepartmentNotification = function sendDepartmentNotification(departm
 
 function sendNotification(title, body, data, topic) {
 	var message = {
-		notification: {
-      		title: title,
-      		body: body
-      	},
       	data: data,
 	  	topic: topic
 	};
