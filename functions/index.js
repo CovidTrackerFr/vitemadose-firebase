@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const network = require('./network');
+const cors = require('cors')({origin: true});
 const notification = require('./notification');
 
 try {admin.initializeApp();} catch(e) {} // You do that because the admin SDK can only be initialized once.
@@ -33,6 +34,79 @@ exports.checkNewAppointments = functions
 				return Promise.all(checkDepartmentPromises);
 		  	});
 });
+
+// Firebase web push function
+exports.subscribeToTopic = functions
+    .region('europe-west1')
+    .https
+    .onRequest((req, res) => {
+    	cors(req, res, () => {
+	    	const registrationTokens = [req.query.token];
+	    	const topic = req.query.topic;
+
+	    	return admin
+	    		.messaging()
+	    		.subscribeToTopic(registrationTokens, topic)
+	  			.then(function(response) {
+					// See the MessagingTopicManagementResponse reference documentation
+					// for the contents of response.
+					console.log('Successfully subscribed to topic:', response);
+
+	          		res.status(200).send();
+				})
+				.catch(function(error) {
+					console.log('Error subscribing to topic:', error);
+	          		res.status(500).send();
+				});
+		});
+    });
+
+exports.unsubscribeFromTopic = functions
+    .region('europe-west1')
+    .https
+    .onRequest((req, res) => {
+    	cors(req, res, () => {
+	    	const registrationTokens = [req.query.token];
+	    	const topic = req.query.topic;
+
+	    	return admin
+	    		.messaging()
+	    		.unsubscribeFromTopic(registrationTokens, topic)
+	  			.then(function(response) {
+					// See the MessagingTopicManagementResponse reference documentation
+					// for the contents of response.
+					console.log('Successfully unsubscribed from topic:', response);
+
+	          		res.status(200).send();
+				})
+				.catch(function(error) {
+					console.log('Error unsubscribing from topic:', error);
+	          		res.status(500).send();
+				});
+		});
+    });
+
+exports.sendNotification = functions
+    .region('europe-west1')
+    .https
+    .onRequest((req, res) => {
+    	cors(req, res, () => {
+
+    		const center = {
+    			gid: req.query.centerId,
+    			nom: "Centre de test " + req.query.centerId,
+    			departement: req.query.department,
+    			appointments: 3,
+    		}
+			return notification.sendCenterNotification(center)
+	  			.then(function(response) {
+	          		res.status(200).send();
+				})
+				.catch(function(error) {
+	          		res.status(500).send();
+				});
+		});
+    });
 
 
 // Check availabilities for department

@@ -10,14 +10,8 @@ exports.sendCenterNotification = function sendCenterNotification(center) {
 	} else {
 		body = "Nouveau créneau disponible";
 	}
-	var data = {
-      	department: center.departement,
-      	center: center.gid,
-		title: title,
-      	body: body
-    }
 
-	return sendNotification(title, body, data, topic);
+	return sendNotification(title, body, center.departement, center.gid, topic);
 }
 
 exports.sendDepartmentNotification = function sendDepartmentNotification(departmentCode, departmentName, availableCenters) {
@@ -29,18 +23,24 @@ exports.sendDepartmentNotification = function sendDepartmentNotification(departm
 	} else {
 		body = "Nouveau créneau disponible";
 	}
-	var data = {
-      	department: departmentCode,
-		title: title,
-      	body: body
-    }
 
-	return sendNotification(title, body, data, topic);
+	return sendNotification(title, body, departmentCode, "", topic);
 }
 
-function sendNotification(title, body, data, topic) {
+function sendNotification(title, body, department, center, topic) {
 	var message = {
-      	data: data,
+      	data: {
+			title: title,
+      		body: body,
+      		department: department,
+      		center: center,
+      		topic: topic
+    	},
+      	webpush: {
+      		fcm_options: {
+        		link: "https://vitemadose.covidtracker.fr/"
+      		}
+    	},
 	  	topic: topic
 	};
 
