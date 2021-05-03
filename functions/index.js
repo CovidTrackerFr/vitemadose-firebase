@@ -93,7 +93,7 @@ exports.sendNotification = functions
     	cors(req, res, () => {
 
     		const center = {
-    			gid: req.query.centerId,
+    			internal_id: req.query.centerId,
     			nom: "Centre de test " + req.query.centerId,
     			departement: req.query.department,
     			appointments: 3,
@@ -160,7 +160,7 @@ function checkCenter(center) {
 			const lastAppointmentCount = result;
 			const appointmentCount = center.appointment_count;
 
-			var log = "[" + center.departement + " - " + center.gid + "] " 
+			var log = "[" + center.departement + " - " + center.internal_id + "] " 
 				+ lastAppointmentCount + " -> " + appointmentCount + " available appointments : "
 
 			if (typeof lastAppointmentCount != 'number' || lastAppointmentCount > 0 || appointmentCount == 0) {
@@ -236,7 +236,7 @@ function saveDepartmentState(departmentCode, availableCenters, lastUpdated, noti
 function getLastCenterState(center) {
 	return admin
 		.database()
-		.ref("/departments/" + center.departement + "/centers/" + center.gid + "/appointmentCount")
+		.ref("/departments/" + center.departement + "/centers/" + center.internal_id + "/appointmentCount")
 		.once('value')
 		.then(snapshot => {
   			return snapshot.val();
@@ -247,7 +247,7 @@ function getLastCenterState(center) {
 function saveCenterState(center) {
 	return admin
 		.database()
-		.ref("/departments/" + center.departement + "/centers/" + center.gid)
+		.ref("/departments/" + center.departement + "/centers/" + center.internal_id)
 		.set({
 			appointmentCount: center.appointment_count,
 			lastScanWithAvailabilities: center.last_scan_with_availabilities
