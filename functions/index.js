@@ -128,7 +128,7 @@ function checkDepartment(department) {
 
 			var departmentPromises =  [];
 
-			if (lastAvailableCenters == null || lastAvailableCenters > 0 || availableCenters == 0) {
+			if (typeof lastAvailableCenters != 'number' || lastAvailableCenters > 0 || availableCenters == 0) {
 				console.info(log + "notification not necessary");
 
 				departmentPromises.push(saveDepartmentState(department.code_departement, availableCenters, lastUpdated, false));
@@ -163,7 +163,7 @@ function checkCenter(center) {
 			var log = "[" + center.departement + " - " + center.gid + "] " 
 				+ lastAppointmentCount + " -> " + appointmentCount + " available appointments : "
 
-			if (appointmentCount == null || lastAppointmentCount > 0 || appointmentCount == 0) {
+			if (typeof lastAppointmentCount != 'number' || lastAppointmentCount > 0 || appointmentCount == 0) {
 				console.info(log + "notification not necessary");
 
 				return saveCenterState(center);
