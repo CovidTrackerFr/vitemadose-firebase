@@ -37,6 +37,10 @@ function sendNotification(title, body, department, center, topic) {
       		topic: topic
     	},
       	webpush: {
+      		notification: {
+      			title: title,
+      			body: body
+      		},
       		fcm_options: {
         		link: "https://vitemadose.covidtracker.fr/"
       		}
