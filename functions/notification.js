@@ -34,7 +34,8 @@ function sendNotification(title, body, department, center, topic) {
       		body: body,
       		department: department,
       		center: center,
-      		topic: topic
+      		topic: topic,
+      		type: "new_appointments"
     	},
       	webpush: {
       		notification: {
