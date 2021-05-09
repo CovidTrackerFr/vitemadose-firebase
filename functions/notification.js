@@ -37,6 +37,18 @@ function sendNotification(title, body, department, center, topic) {
       		topic: topic,
       		type: "new_appointments"
     	},
+     	apns: {
+     		payload: {
+     			aps: {
+     				alert: {
+          				title: title,
+          				body: body
+      				},
+      				sound: "default"
+     			}
+     		}
+     		
+     	},
       	webpush: {
       		notification: {
       			title: title,
