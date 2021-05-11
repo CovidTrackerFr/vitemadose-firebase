@@ -117,7 +117,7 @@ function saveCenterState(center) {
 	return admin
 		.database()
 		.ref("/departments/" + center.departement + "/centers/" + center.internal_id)
-		.set({
+		.update({
 			appointmentCount: center.appointment_count,
 			lastScanWithAvailabilities: center.last_scan_with_availabilities
 		});
