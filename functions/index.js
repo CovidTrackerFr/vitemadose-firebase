@@ -38,7 +38,7 @@ exports.checkChronoDoseAppointments = functions
     .runWith(runtimeOpts)
     .region('europe-west1')
     .pubsub
-    .schedule('every day 16:00')
+    .schedule('every 15 minutes from 08:02 to 22:02')
     .timeZone('Europe/Paris')
     .onRun((context) => {
 	 	return network.getDepartments()
