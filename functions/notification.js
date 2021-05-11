@@ -1,33 +1,9 @@
 const admin = require('firebase-admin');
+
 try {admin.initializeApp();} catch(e) {} // You do that because the admin SDK can only be initialized once.
 
-exports.sendCenterNotification = function sendCenterNotification(center) {
-	var topic = "department_" + center.departement + "_center_" + center.internal_id;
-	var title = center.nom;
-	var body;
-	if (center.appointments > 1) {
-		body = "Nouveaux créneaux disponibles";
-	} else {
-		body = "Nouveau créneau disponible";
-	}
 
-	return sendNotification(title, body, center.departement, center.internal_id, topic);
-}
-
-exports.sendDepartmentNotification = function sendDepartmentNotification(departmentCode, departmentName, availableCenters) {
-	var topic = "department_" + departmentCode;
-	var title = departmentCode + " - " + departmentName;
-	var body;
-	if (availableCenters > 1) {
-		body = "Nouveaux créneaux disponibles";
-	} else {
-		body = "Nouveau créneau disponible";
-	}
-
-	return sendNotification(title, body, departmentCode, "", topic);
-}
-
-function sendNotification(title, body, department, center, topic) {
+exports.sendNotification = function sendNotification(title, body, department, center, topic, type) {
 	var message = {
       	data: {
 			title: title,
@@ -35,7 +11,7 @@ function sendNotification(title, body, department, center, topic) {
       		department: department,
       		center: center,
       		topic: topic,
-      		type: "new_appointments"
+      		type: type
     	},
      	apns: {
      		payload: {
