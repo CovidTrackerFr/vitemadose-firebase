@@ -149,21 +149,21 @@ function saveCenterState(center, chronodoseCount) {
 
 exports.sendCenterNotification = function sendCenterNotification(center, availableChronodoses) {
 	var topic = "department_" + center.departement + "_center_" + center.internal_id + notificationTopicSuffix;
-	var title = center.nom;
-	var body = getNotificationBody(availableChronodoses);
+	var title = getNotificationTitle(availableChronodoses);
+	var body = center.nom;
 
 	return notification.sendNotification(title, body, center.departement, center.internal_id, topic, notificationType);
 }
 
 function sendDepartmentNotification(departmentCode, departmentName, availableCenters) {
 	var topic = "department_" + departmentCode + notificationTopicSuffix;
-	var title = departmentCode + " - " + departmentName;
-	var body = getNotificationBody(availableCenters);
+	var title = getNotificationTitle(availableCenters);
+	var body = departmentCode + " - " + departmentName;
 
 	return notification.sendNotification(title, body, departmentCode, "", topic, notificationType);
 }
 
-function getNotificationBody(appointmentCount) {
+function getNotificationTitle(appointmentCount) {
 	if (appointmentCount > 1) {
 		return "⚡ Chronodoses disponibles ⚡";
 	} else {
