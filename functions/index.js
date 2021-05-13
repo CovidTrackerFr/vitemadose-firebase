@@ -10,7 +10,7 @@ try {admin.initializeApp();} catch(e) {} // You do that because the admin SDK ca
 
 
 const runtimeOpts = {
-  timeoutSeconds: 300,
+  timeoutSeconds: 60,
   memory: '1GB'
 }
 
@@ -20,7 +20,7 @@ exports.checkNewAppointments = functions
     .runWith(runtimeOpts)
     .region('europe-west1')
     .pubsub
-    .schedule('every 15 minutes from 08:00 to 22:00')
+    .schedule('every 10 minutes from 00:00 to 23:59')
     .timeZone('Europe/Paris')
     .onRun((context) => {
 	 	return network.getDepartments()
@@ -38,7 +38,7 @@ exports.checkChronoDoseAppointments = functions
     .runWith(runtimeOpts)
     .region('europe-west1')
     .pubsub
-    .schedule('every 15 minutes from 08:02 to 22:02')
+    .schedule('every 10 minutes from 00:01 to 23:59')
     .timeZone('Europe/Paris')
     .onRun((context) => {
 	 	return network.getDepartments()
