@@ -29,6 +29,10 @@ exports.checkDepartment = function checkDepartment(department) {
 				console.info(log + "notification not necessary");
 
 				departmentPromises.push(saveDepartmentState(department.code_departement, availableCenters, lastUpdated, false));
+			} else if (availableCenters == 1) {
+				console.info(log + "notification not necessary for only 1 availableCenters");
+				// do not save this state, if the next state is greater than 1 availableCenters, 
+				// we want to notify this department, so we must keep the reference of the transition from 0 availableCenters
 			} else {
 				console.info(log + "send notification");
 
@@ -64,6 +68,11 @@ function checkCenter(center) {
 				console.info(log + "notification not necessary");
 
 				return saveCenterState(center);
+			} else if (appointmentCount == 1) {
+				console.info(log + "notification not necessary for only 1 appointment");
+				// do not save this state, if the next state is greater than 1 appointment, 
+				// we want to notify this center, so we must keep the reference of the transition from 0 appointment
+				return;
 			} else {
 				console.info(log + "send notification");
 
