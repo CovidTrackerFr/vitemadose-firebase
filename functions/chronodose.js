@@ -161,7 +161,7 @@ exports.sendCenterNotification = function sendCenterNotification(center, availab
 	var title = getNotificationTitle(availableChronodoses);
 	var body = center.nom;
 
-	return notification.sendNotification(title, body, center.departement, center.internal_id, topic, notificationType);
+	return notification.sendNotification(title, body, center.departement, center.internal_id, center.url, topic, notificationType);
 }
 
 function sendDepartmentNotification(departmentCode, departmentName, availableCenters) {
@@ -169,7 +169,7 @@ function sendDepartmentNotification(departmentCode, departmentName, availableCen
 	var title = getNotificationTitle(availableCenters);
 	var body = departmentCode + " - " + departmentName;
 
-	return notification.sendNotification(title, body, departmentCode, "", topic, notificationType);
+	return notification.sendNotification(title, body, departmentCode, "", "", topic, notificationType);
 }
 
 function getNotificationTitle(appointmentCount) {

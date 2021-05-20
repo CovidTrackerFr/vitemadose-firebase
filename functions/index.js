@@ -114,6 +114,7 @@ exports.sendNotification = functions
     			nom: "Centre de test " + req.query.centerId,
     			departement: req.query.department,
     			appointments: 3,
+    			url: "https://vitemadose.covidtracker.fr/"
     		}
 			
 			var notificationPromise;

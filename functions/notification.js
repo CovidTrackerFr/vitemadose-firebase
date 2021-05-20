@@ -3,13 +3,14 @@ const admin = require('firebase-admin');
 try {admin.initializeApp();} catch(e) {} // You do that because the admin SDK can only be initialized once.
 
 
-exports.sendNotification = function sendNotification(title, body, department, center, topic, type) {
+exports.sendNotification = function sendNotification(title, body, department, center, url, topic, type) {
 	var message = {
       	data: {
 			title: title,
       		body: body,
       		department: department,
       		center: center,
+      		url: url,
       		topic: topic,
       		type: type
     	},
